@@ -2,6 +2,9 @@ from django.urls import path
 from . import views  # Ensure this import is correct
 
 urlpatterns = [
+    path('login/' , views.loginPage , name="login"),
+    path('logout/' , views.logoutUser , name="logout"),
+
     path('', views.home, name='home'),  # Home page
     path('room/<str:pk>/', views.room, name='room'),  # Room page with dynamic ID
 

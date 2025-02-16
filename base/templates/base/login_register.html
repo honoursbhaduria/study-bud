@@ -1,0 +1,29 @@
+{%  extends 'base/main.html' %}
+
+
+{% block content %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li></li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div>
+    <form method="POST" >
+        {% csrf_token %}
+        
+        <label for="">Username:</label>
+        <input type="text" name="username" name="" id="" placeholder="Enter Username">
+
+        <label for="">Password:</label>
+        <input type="password"  name="password" id="" placeholder="Enter Password">
+
+        <input type="submit" name="" id="">
+    </form>
+</div>
+
+
+{% endblock content %}
