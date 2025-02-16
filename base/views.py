@@ -1,99 +1,177 @@
-from django.shortcuts import render, redirect 
-from django.db.models import Q
-from base.models import Room, Topic
-from base.forms import RoomForm
-from django.contrib.auth import authenticate , login ,logout
-from django.contrib import messages
+# ==============================
+# Import necessary Django modules and models
+# ==============================
 
-from django.contrib.auth.models  import User
+from django.shortcuts import render, redirect  # Handles rendering templates and redirections
+from django.db.models import Q  # Allows complex query lookups
+from django.http import HttpResponse  # Handles HTTP responses
+from django.contrib.auth.decorators import login_required  # Ensures only logged-in users access certain views
+from django.contrib.auth import authenticate, login, logout  # Handles authentication
+from django.contrib import messages  # Displays flash messages
+from django.contrib.auth.models import User  # User model for authentication
 
-# Create your views here.
+from base.models import Room, Topic  # Import custom models
+from base.forms import RoomForm  # Import Django form for Room model
+
+
+# ==============================
+# User Authentication Views
+# ==============================
+
 def loginPage(request):
+    """
+    Handles user login.
+    Redirects authenticated users to the home page.
+    """
+    page = 'login'
     if request.user.is_authenticated:
-        return redirect("home")
-
+        return redirect("home")  # Redirects logged-in users to home
 
     if request.method == 'POST':
-        username  = request.POST.get('username')
-        password  = request.POST.get('password')
+        username = request.POST.get('username')  # Get username from form input
+        password = request.POST.get('password')  # Get password from form input
 
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(username=username)  # Check if user exists
         except:
-            messages.error(request, 'User does not exist')
+            messages.error(request, 'User does not exist')  # Error message if user not found
             return render(request, 'base/login_register.html')
-            
 
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, username=username, password=password)  # Authenticate user
 
         if user is not None:
-            login(request, user)
-            return redirect('home')
+            login(request, user)  # Log in user
+            return redirect('home')  # Redirect to home after login
         else:
-            messages.error(request, 'Username or password is incorrect')
-            return render(request, 'base/login_register.html')
+            messages.error(request, 'Username or password is incorrect')  # Error for incorrect login
+
+    context = {'page': page}
+    return render(request, 'base/login_register.html', context)  # Render login page
 
 
-    context = {}
-    return render(request, 'base/login_register.html',context)
+# ==============================
+# logout 
+# ==============================
 
-def logoutUser(request ):
+def logoutUser(request):
+    """
+    Logs out the user and redirects to the home page.
+    """
     logout(request)
     return redirect('home')
 
+# ==============================
+# Sign up registeration
+# ==============================
 
+def registerPage(request):
+    """
+    Displays the registration page.
+    """
+    page = 'register'
+    return render(request, 'base/login_register.html', {'page': page})  # Render registration page
+
+
+# ==============================
+# Home and Room Views
+# ==============================
 
 def home(request):
-    q = request.GET.get('q') if request.GET.get('q') != None else ''
+    """
+    Displays the homepage with room listings and search functionality.
+    """
+    q = request.GET.get('q') if request.GET.get('q') != None else ''  # Get search query from URL
 
     rooms = Room.objects.filter(
-        Q(topic__name__icontains=q) |
-        Q(name__icontains = q) |
-        Q(description__icontains = q)
-        )
+        Q(topic__name__icontains=q) |  # Filter by topic name
+        Q(name__icontains=q) |  # Filter by room name
+        Q(description__icontains=q)  # Filter by room description
+    )
 
-    topics = Topic.objects.all()
-    room_count = rooms.count()
+    topics = Topic.objects.all()  # Fetch all topics
+    room_count = rooms.count()  # Count the number of rooms
 
+    context = {'rooms': rooms, 'topics': topics, 'room_count': room_count}
+    return render(request, 'base/home.html', context)  # Render home page
 
-
-    context = {'rooms': rooms, 'topics': topics , 'room_count' :room_count}
-    return render(request, 'base/home.html', context)
 
 def room(request, pk):
-    room = Room.objects.get(id=pk)
-    context = {'room': room}  # Added context
-    return render(request, 'base/room.html', context)  # Fixed missing context
+    """
+    Displays a specific room based on its ID.
+    """
+    room = Room.objects.get(id=pk)  # Fetch room by primary key (id)
+    context = {'room': room}
+    return render(request, 'base/room.html', context)  # Render room page
 
+
+# ==============================
+# CRUD Operations for Rooms
+# ==============================
+
+
+
+# ==============================
+# create room
+# ==============================
+@login_required(login_url='login')  # Ensures only logged-in users can create rooms
 def createRoom(request):
+    """
+    Allows authenticated users to create a room.
+    """
     form = RoomForm()
 
     if request.method == 'POST':
         form = RoomForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return redirect('home')  # Redirect to home after creating room
 
     context = {'form': form}
-    return render(request, 'base/room_form.html', context)
+    return render(request, 'base/room_form.html', context)  # Render room creation form
 
+
+# ==============================
+# update room
+# ==============================
+
+
+@login_required(login_url='login')  # Ensures only logged-in users can update rooms
 def updateRoom(request, pk):
-    room = Room.objects.get(id=pk)
-    form = RoomForm(instance=room)
+    """
+    Allows the host of a room to update its details.
+    """
+    room = Room.objects.get(id=pk)  # Fetch the room by its ID
+    form = RoomForm(instance=room)  # Pre-fill form with existing data
+
+    if request.user != room.host:
+        return HttpResponse('You are not allowed here..')  # Restrict unauthorized users
 
     if request.method == 'POST':
         form = RoomForm(request.POST, instance=room)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return redirect('home')  # Redirect to home after updating room
 
     context = {'form': form}
-    return render(request, 'base/room_form.html', context)
+    return render(request, 'base/room_form.html', context)  # Render room update form
 
+# ==============================
+# delete room
+# ==============================
+
+@login_required(login_url='login')  # Ensures only logged-in users can delete rooms
 def deleteRoom(request, pk):
-    room = Room.objects.get(id=pk)
+    """
+    Allows the host of a room to delete it.
+    """
+    room = Room.objects.get(id=pk)  # Fetch room by ID
+
+    if request.user != room.host:
+        return HttpResponse('You are not allowed here..')  # Restrict unauthorized users
+
     if request.method == 'POST':
         room.delete()
-        return redirect('home')
+        return redirect('home')  # Redirect to home after deletion
 
-    return render(request, 'base/delete.html', {'obj': room})  # Fixed incorrect template path
+    return render(request, 'base/delete.html', {'obj': room})  # Render delete confirmation page
+

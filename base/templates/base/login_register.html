@@ -3,6 +3,9 @@
 
 {% block content %}
 
+
+{% if page == 'login'  %}
+
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
@@ -21,9 +24,31 @@
         <label for="">Password:</label>
         <input type="password"  name="password" id="" placeholder="Enter Password">
 
-        <input type="submit" name="" id="">
+        <input type="submit" value="login">
     </form>
+
+    <p>haven't signed up yet ?</p>
+    <a href="{% url 'register' %}">Sign up</a>
 </div>
 
 
+
+{% else %}
+
+
+
+<div>
+    <form method="POST" >
+        {% csrf_token %}
+        
+       
+        
+        <input type="submit" value="Register">
+    </form>
+    <p>Already signed up yet ?</p>
+    <a href="{% url 'login' %}">Login</a>
+
+</div>
+
+{% endif %}
 {% endblock content %}
