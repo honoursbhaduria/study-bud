@@ -18,6 +18,8 @@
     <form method="POST" >
         {% csrf_token %}
         
+        
+
         <label for="">Username:</label>
         <input type="text" name="username" name="" id="" placeholder="Enter Username">
 
@@ -41,8 +43,8 @@
     <form method="POST" >
         {% csrf_token %}
         
-       
-        
+        {{form.as_p}}
+
         <input type="submit" value="Register">
     </form>
     <p>Already signed up yet ?</p>

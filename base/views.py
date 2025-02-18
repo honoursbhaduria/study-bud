@@ -1,6 +1,8 @@
 # ==============================
 # Import necessary Django modules and models
 # ==============================
+from base.models import Message
+
 
 from django.shortcuts import render, redirect  # Handles rendering templates and redirections
 from django.db.models import Q  # Allows complex query lookups
@@ -9,7 +11,7 @@ from django.contrib.auth.decorators import login_required  # Ensures only logged
 from django.contrib.auth import authenticate, login, logout  # Handles authentication
 from django.contrib import messages  # Displays flash messages
 from django.contrib.auth.models import User  # User model for authentication
-
+from django.contrib.auth.forms import UserCreationForm
 from base.models import Room, Topic  # Import custom models
 from base.forms import RoomForm  # Import Django form for Room model
 
@@ -28,7 +30,7 @@ def loginPage(request):
         return redirect("home")  # Redirects logged-in users to home
 
     if request.method == 'POST':
-        username = request.POST.get('username')  # Get username from form input
+        username = request.POST.get('username').lower() # Get username from form input
         password = request.POST.get('password')  # Get password from form input
 
         try:
@@ -65,11 +67,19 @@ def logoutUser(request):
 # ==============================
 
 def registerPage(request):
-    """
-    Displays the registration page.
-    """
-    page = 'register'
-    return render(request, 'base/login_register.html', {'page': page})  # Render registration page
+    form = UserCreationForm()
+
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+            return redirect('home')
+        else :
+            messages.error(request,'An error occured during registration')
+
+    return render(request, 'base/login_register.html',{'form' : form} )  # Render registration page
 
 
 # ==============================
@@ -100,7 +110,21 @@ def room(request, pk):
     Displays a specific room based on its ID.
     """
     room = Room.objects.get(id=pk)  # Fetch room by primary key (id)
-    context = {'room': room}
+
+    room_messages = room.message_set.all().order_by('-created')
+
+
+    if request.method == "POST":
+        message_body = request.POST.get("body")
+        if message_body:
+            message = Message.objects.create(
+                user=request.user,  # ✅ Ensure the user is set
+                room=room,  # ✅ Pass the correct room object
+                body=message_body,
+            )
+            return redirect("room", pk=room.id)  # Redirect to avoid form resubmission
+
+    context = {'room': room , 'room_messages' : room_messages}
     return render(request, 'base/room.html', context)  # Render room page
 
 
