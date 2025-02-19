@@ -4,7 +4,7 @@
 from base.models import Message
 
 
-from django.shortcuts import render, redirect  # Handles rendering templates and redirections
+from django.shortcuts import render, redirect, get_object_or_404  # Handles rendering templates and redirections
 from django.db.models import Q  # Allows complex query lookups
 from django.http import HttpResponse  # Handles HTTP responses
 from django.contrib.auth.decorators import login_required  # Ensures only logged-in users access certain views
@@ -100,8 +100,10 @@ def home(request):
 
     topics = Topic.objects.all()  # Fetch all topics
     room_count = rooms.count()  # Count the number of rooms
+    room_messages = Message.objects.all()
 
-    context = {'rooms': rooms, 'topics': topics, 'room_count': room_count}
+    context = {'rooms': rooms, 'topics': topics,
+                'room_count': room_count , 'room_messages' : room_messages}
     return render(request, 'base/home.html', context)  # Render home page
 
 
@@ -109,22 +111,26 @@ def room(request, pk):
     """
     Displays a specific room based on its ID.
     """
+    room = get_object_or_404(Room, id=pk)  # ✅ Handle room not found properly
     room = Room.objects.get(id=pk)  # Fetch room by primary key (id)
-
     room_messages = room.message_set.all().order_by('-created')
-
+    participants = room.participants.all()
 
     if request.method == "POST":
         message_body = request.POST.get("body")
+        
+
         if message_body:
             message = Message.objects.create(
                 user=request.user,  # ✅ Ensure the user is set
                 room=room,  # ✅ Pass the correct room object
-                body=message_body,
+                body=message_body
             )
+            room.participants.add(request.user)
             return redirect("room", pk=room.id)  # Redirect to avoid form resubmission
 
-    context = {'room': room , 'room_messages' : room_messages}
+    context = {'room': room , 'room_messages' : room_messages ,
+               'participants': participants}
     return render(request, 'base/room.html', context)  # Render room page
 
 
@@ -188,6 +194,7 @@ def deleteRoom(request, pk):
     """
     Allows the host of a room to delete it.
     """
+    room = get_object_or_404(Room, id=pk)  # ✅ Handle room not found properly
     room = Room.objects.get(id=pk)  # Fetch room by ID
 
     if request.user != room.host:
@@ -199,3 +206,18 @@ def deleteRoom(request, pk):
 
     return render(request, 'base/delete.html', {'obj': room})  # Render delete confirmation page
 
+@login_required(login_url='login')  
+
+def deleteMessage(request, pk):
+    """
+    Allows to delete thw messages
+    """
+    message = Message.objects.get(id=pk)  # Fetch room by ID
+
+    if request.user != message.user:
+        return HttpResponse('You are not allowed here..') 
+    if request.method == 'POST':
+        message.delete()
+        return redirect('home')  
+
+    return render(request, 'base/delete.html', {'obj': message}) 
