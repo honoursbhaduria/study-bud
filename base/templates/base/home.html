@@ -12,21 +12,8 @@
 </style>
 
 <div class="home-container">
-    <!-- Sidebar: Topics -->
-    <div class="topics-container">
-        <h3>Browse Topics</h3>
-        <hr>
-
-        <div>
-            <a href="{% url 'home' %}">All</a>
-        </div>
-
-
-        {% for topic in topics %}
-            <div>
-                <a href="{% url 'home' %}?q={{ topic.name }}">{{ topic.name }}</a>
-            </div>
-        {% endfor %}
+    <div>
+        {% include 'base/topics_component.html' %}
     </div>
 
     <!-- Main Content: Rooms -->
@@ -56,20 +43,8 @@
     </div>
     
     <div>
-        <h3>Recent Activity</h3> 
-        <hr>
-        {% for  message in room_messages %}
-            <div>
-                <small>@{{message.user}}   {{message.created|timesince}}</small>
-                <small> replied to "{{message.room}}"</small>
+        {% include 'base/activity_component.html' %}
 
-                <p>{{message}}</p>
-                {% if request.user == message.user %}
-                    <a href="{% url 'delete-message' message.id %}">Delete</a>
-                {% endif %}
-                <hr>
-            </div>
-        {% endfor %}
     </div>
 
 </div>
