@@ -111,7 +111,6 @@ def room(request, pk):
     """
     Displays a specific room based on its ID.
     """
-    room = get_object_or_404(Room, id=pk)  # ✅ Handle room not found properly
     room = Room.objects.get(id=pk)  # Fetch room by primary key (id)
     room_messages = room.message_set.all().order_by('-created')
     participants = room.participants.all()
@@ -134,6 +133,15 @@ def room(request, pk):
     return render(request, 'base/room.html', context)  # Render room page
 
 
+
+def userProfile(request, pk):
+
+    user = User.objects.get(id=pk)
+    rooms = user.room_set.all()
+    room_message = user.message_set.all()
+    topics = Topic.objects.all()
+    context = {'user' : user , 'rooms ': rooms , 'room_message' : room_message}
+    return render(request , 'base/profile.html',context)
 # ==============================
 # CRUD Operations for Rooms
 # ==============================

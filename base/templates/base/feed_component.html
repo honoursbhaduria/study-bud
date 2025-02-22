@@ -1,0 +1,16 @@
+<!-- feed_component.html -->
+<div>
+    {% for room in rooms %} 
+    <div class="room-card">
+        {% if request.user == room.host %}
+        <a href="{% url 'update-room' room.id %}">Edit</a> |
+        <a href="{% url 'delete-room' room.id %}">Delete</a> 
+        {% endif %}
+    
+        <a href="{% url 'user-Profile' room.host.id %}" >@{{ room.host.username }}</a>
+        <h5>{{ room.id }} — <a href="{% url 'room' room.id %}">{{ room.name }}</a></h5>
+        <small>Topic: {{ room.topic.name }}</small>
+    </div>
+
+    {% endfor %}
+</div>
