@@ -1,21 +1,18 @@
-<a href="/">
-    <h1>LOGO</h1>
-</a>
-
-
-
-
-
-<form method="GET" action="{% url 'home' %}">
-    <input type="text" name = "q" placeholder="Search Rooms...">
-</form>
-{% if request.user.is_authenticated %}
-<p>Hello {{request.user}}</p>
-<a href="{% url 'logout' %}">LogOut</a>
-{% else  %}
-<a href="{% url 'login' %}">login </a>
-
-{% endif %}
-
-<hr>
-<hr>
+<header class="header">
+    <div class="header-content">
+        <h1 class="logo">&gt;_Study Bud</h1>
+        <div class="search-bar">
+            <form action="{% url 'home' %}" method="GET">
+                <input type="search" placeholder="Search rooms..." class="search-input" name="q">
+            </form>
+        </div>
+        <div class="user-menu">
+            {% if request.user.is_authenticated %}
+            <span class="username">[user: {{request.user}}]</span>
+            <a href="{% url 'logout' %}" class="logout-btn">$ logout</a>
+            {% else  %}
+            <a href="{% url 'login' %}" class="logout-btn">$ login</a>
+            {% endif %}
+        </div>
+    </div>
+</header>

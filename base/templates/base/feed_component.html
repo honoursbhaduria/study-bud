@@ -1,16 +1,14 @@
-<!-- feed_component.html -->
-<div>
-    {% for room in rooms %} 
-    <div class="room-card">
+{% for room in rooms %} 
+<div class="room-card">
+    <div class="room-info">
         {% if request.user == room.host %}
         <a href="{% url 'update-room' room.id %}">Edit</a> |
         <a href="{% url 'delete-room' room.id %}">Delete</a> 
         {% endif %}
-    
-        <a href="{% url 'user-Profile' room.host.id %}" >@{{ room.host.username }}</a>
-        <h5>{{ room.id }} — <a href="{% url 'room' room.id %}">{{ room.name }}</a></h5>
-        <small>Topic: {{ room.topic.name }}</small>
+        <a href="{% url 'room' room.id %}" style="text-decoration: none;"><h3 >{{ room.id }} — {{ room.name }}</h3></a>
+        <p class="room-topic">[Topic: {{ room.topic.name }}]</p>
+        <a href="{% url 'user-Profile' room.host.id %}" class="room-author">@{{ room.host.username }}</a>
     </div>
-
-    {% endfor %}
 </div>
+{% endfor %}
+

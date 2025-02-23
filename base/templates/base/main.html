@@ -1,22 +1,21 @@
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDYBUD</title>
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Study Bud</title>
+    <link rel="stylesheet" href="{% static 'base/style.css'%}">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
-    {% include 'base/navbar.html' %}
-    
-
+    <canvas id="matrix-bg"></canvas>
+    <div class="main-content">
+    <!-- {% include 'base/navbar.html' %} -->
     {% block content %}
-    
-
-    
-     <h1> my name is honours</h1>
-
     {% endblock %}
+</div>
+    <script src="{% static 'base/matrix.js'%}"></script>
 </body>
 </html>
