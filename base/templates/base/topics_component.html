@@ -1,13 +1,13 @@
-<h3>Browse Topics</h3>
-<hr>
+<aside class="sidebar">
+    <section class="topics-section">
+        <h2>Browse Topics</h2>
+        <nav class="topics-nav">
+            <a href="{% url 'home' %}" class="active"># all</a>
+            {% for topic in topics %}
+            
+            <a href="{% url 'home' %}?q={{ topic.name }}"># {{ topic.name }}</a>
+            {% endfor %}
 
-    <div>
-        <a href="{% url 'home' %}">All</a> 
-    </div>
-
-
-{% for topic in topics %}
-        <div>
-                <a href="{% url 'home' %}?q={{ topic.name }}">{{ topic.name }}</a>
-        </div>
-{% endfor %}
+        </nav>
+    </section>
+</aside>

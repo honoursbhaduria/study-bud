@@ -1,38 +1,22 @@
 {% extends 'base/main.html' %}
 
 {% block content %}
-<style>
-    .home-container {
-        display: grid;
-        grid-template-columns: 1fr 3fr 1fr;
-        gap: 20px;
-    }
+{% include 'base/topics_component.html' %}
 
- 
-</style>
+<main class="rooms-section">
 
-<div class="home-container">
-    <div>
-        {% include 'base/topics_component.html' %}
-    </div>
+    {% include 'base/navbar.html'%}
 
-    <!-- Main Content: Rooms -->
-    <div class="rooms-container">
-        <div>
-            <h5>{{room_count}} Rooms available</h5>
-            <a href="{% url 'create-room' %}">Create Room</a>
+    <div class="rooms-content">
+        <div class="rooms-header">
+            <h2>[{{room_count}}_Rooms_Available]</h2>
+            <a href="{% url 'create-room' %}"  style="text-decoration: none;" class="create-room-btn">+ Create_Room</a>
         </div>
-        <hr>
-
-       <div>
-        {% include 'base/feed_component.html'%}
-       </div>
-    </div>
-    
-    <div>
-        {% include 'base/activity_component.html' %}
+        <div class="rooms-list">
+            {% include 'base/feed_component.html'%}
+        </div>
     </div>
 
-</div>
-
+</main>
+{% include 'base/activity_component.html' %}
 {% endblock content %}
