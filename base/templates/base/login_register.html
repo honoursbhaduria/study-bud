@@ -1,56 +1,164 @@
-{%  extends 'base/main.html' %}
-
+{% extends 'base/main.html' %}
 
 {% block content %}
 
+<style>
+    body {
+        background-color: black;
+        color: #00ff00;
+        font-family: 'Courier New', monospace;
+        overflow: hidden;
+        text-align: center;
+    }
 
-{% if page == 'login'  %}
+    .form-container {
+        background: rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #00ff00;
+        width: 50%;
+        margin: 100px auto;
+    }
+
+    h2 {
+        text-shadow: 0 0 5px #00ff00;
+    }
+
+    label {
+        display: block;
+        margin-top: 10px;
+        font-size: 1.2rem;
+        text-shadow: 0 0 5px #00ff00;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        background: black;
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        font-size: 1rem;
+        box-shadow: 0 0 5px #00ff00;
+    }
+
+    input[type="submit"] {
+        margin-top: 20px;
+        cursor: pointer;
+        background: #00ff00;
+        color: black;
+        font-weight: bold;
+        box-shadow: 0 0 10px #00ff00;
+    }
+
+    a {
+        color: #00ff00;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .matrix-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+</style>
+
+<div class="matrix-overlay">
+    <canvas id="matrixCanvas"></canvas>
+</div>
+
+{% if page == 'login' %}
 
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
-    <li></li>{{ message }}</li>
+    <li>{{ message }}</li>
     {% endfor %}
 </ul>
 {% endif %}
 
-<div>
-    <form method="POST" >
+<div class="form-container">
+    <h2>Login</h2>
+    <form method="POST">
         {% csrf_token %}
-        
-        
+        <label>Username:</label>
+        <input type="text" name="username" placeholder="Enter Username">
 
-        <label for="">Username:</label>
-        <input type="text" name="username" name="" id="" placeholder="Enter Username">
+        <label>Password:</label>
+        <input type="password" name="password" placeholder="Enter Password">
 
-        <label for="">Password:</label>
-        <input type="password"  name="password" id="" placeholder="Enter Password">
-
-        <input type="submit" value="login">
+        <input type="submit" value="Login">
     </form>
 
-    <p>haven't signed up yet ?</p>
+    <p>Haven't signed up yet?</p>
     <a href="{% url 'register' %}">Sign up</a>
 </div>
 
-
-
 {% else %}
 
-
-
-<div>
-    <form method="POST" >
+<div class="form-container">
+    <h2>Register</h2>
+    <form method="POST">
         {% csrf_token %}
-        
-        {{form.as_p}}
-
+        {{ form.as_p }}
         <input type="submit" value="Register">
     </form>
-    <p>Already signed up yet ?</p>
-    <a href="{% url 'login' %}">Login</a>
 
+    <p>Already signed up?</p>
+    <a href="{% url 'login' %}">Login</a>
 </div>
 
 {% endif %}
+
+<script>
+    const canvas = document.getElementById("matrixCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const fontSize = 16;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function drawMatrix() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#00ff00";
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = characters[Math.floor(Math.random() * characters.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+
+    setInterval(drawMatrix, 50);
+
+    window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
+
 {% endblock content %}
