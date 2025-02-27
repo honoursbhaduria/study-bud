@@ -82,15 +82,16 @@
 
 {% if page == 'login' %}
 
-{% if messages %}
+
+
+<div class="form-container">
+    {% if messages %}
 <ul class="messages">
     {% for message in messages %}
-    <li>{{ message }}</li>
+    <p>{{ message }}</p>
     {% endfor %}
 </ul>
 {% endif %}
-
-<div class="form-container">
     <h2>Login</h2>
     <form method="POST">
         {% csrf_token %}
