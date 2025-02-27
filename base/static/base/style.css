@@ -23,12 +23,14 @@
 
 body {
     font-family: 'Share Tech Mono', monospace;
-    background-color: var(--channel-bg);
+    background: url('image.png') no-repeat center center fixed;
+    background-size: cover;
     color: var(--text-color);
     line-height: 1.6;
     height: 100vh;
     overflow: hidden;
 }
+
 
 #matrix-bg {
     position: fixed;
@@ -320,3 +322,4 @@ body {
         margin: 0;
     }
 }
+

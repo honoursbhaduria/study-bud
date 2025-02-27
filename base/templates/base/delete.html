@@ -1,19 +1,133 @@
-{% extends 'base/main.html'%}
+{% extends 'base/main.html' %}
 
-{%   block content %}
+{% block content %}
 
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-<form method="POST" action="">
-    {% csrf_token %}
-    <p>are you sure you want to delete the item {{obj}} ? </p>
-    <a href="{{request.META.HTTP_REFFER}}" >Go Back</a>
-    <input type="submit" value="confirm"  name="" id="">
-</form>
+    body {
+        background-color: black;
+        color: red;
+        font-family: 'Courier New', monospace;
+        text-align: center;
+        overflow: hidden;
+    }
 
+    .danger-container {
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
 
+    .danger-box {
+        padding: 20px;
+        border: 2px solid red;
+        background: rgba(0, 0, 0, 0.9);
+        box-shadow: 0 0 15px red;
+        width: 50%;
+        text-align: center;
+        position: relative;
+    }
 
+    h1 {
+        color: red;
+        text-shadow: 0 0 10px red;
+        font-size: 2rem;
+    }
 
+    .countdown {
+        font-size: 2rem;
+        color: red;
+        text-shadow: 0 0 5px red;
+        margin-bottom: 20px;
+    }
 
+    p {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
 
+    a, input[type="submit"] {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 10px 20px;
+        font-size: 1.2rem;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 5px;
+    }
+
+    a {
+        background-color: black;
+        color: red;
+        border: 2px solid red;
+        box-shadow: 0 0 5px red;
+    }
+
+    input[type="submit"] {
+        background-color: red;
+        color: black;
+        border: 2px solid red;
+        box-shadow: 0 0 10px red;
+        cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+        background: black;
+        color: red;
+        box-shadow: 0 0 20px red;
+    }
+
+    .warning {
+        font-size: 2rem;
+        font-weight: bold;
+        color: red;
+        text-shadow: 0 0 10px red;
+    }
+</style>
+
+<div class="danger-container">
+    <div class="danger-box">
+        <h1>⚠️ WARNING: SYSTEM BREACH ⚠️</h1>
+        <p>Are you sure you want to delete <strong>{{ obj }}</strong>?</p>
+        
+        <div class="warning">🚨 DELETION IN <span id="countdown">10</span> SECONDS 🚨</div>
+
+        <form method="POST" action="">
+            {% csrf_token %}
+            <a href="{{ request.META.HTTP_REFERER }}" id="back-btn">Go Back</a>
+            <input type="submit" value="CONFIRM DELETE" id="confirm-btn">
+        </form>
+    </div>
+</div>
+
+<script>
+    let countdown = 20;
+    let countdownInterval = setInterval(() => {
+        countdown--;
+        document.getElementById("countdown").innerText = countdown;
+        if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            document.querySelector("form").submit();
+        }
+    }, 1000);
+
+    document.getElementById("confirm-btn").addEventListener("click", () => {
+        let audio = new Audio("https://www.fesliyanstudios.com/play-mp3/4387");
+        audio.play();
+    });
+
+    document.getElementById("back-btn").addEventListener("click", () => {
+        let backAudio = new Audio("https://www.fesliyanstudios.com/play-mp3/4389");
+        backAudio.play();
+    });
+</script>
 
 {% endblock content %}

@@ -1,48 +1,139 @@
 {% extends 'base/main.html' %}
 
-
-
-
-
 {% block content %}
+
 <style>
-    .room-container{
-        display: grid;
-        grid-template-columns: 3fr 1fr ;
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        color: #00ff00;
+        font-family: 'Courier New', monospace;
+        overflow: hidden;
+    }
+
+    .room-container {
+        display: flex;
+        width: 100%;
+        height: 100%;
+    }
+
+    .chat-section {
+        flex: 3;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        box-shadow: 0 0 10px #00ff00;
+    }
+
+    .participant-section {
+        flex: 1;
+        padding: 20px;
+        border-left: 2px solid #00ff00;
+        background: rgba(0, 0, 0, 0.8);
+        box-shadow: 0 0 10px #00ff00;
+        overflow-y: auto;
+    }
+
+    .message-box {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .message {
+        background: black;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #00ff00;
+        margin: 10px 0;
+        box-shadow: 0 0 5px #00ff00;
+    }
+
+    .message small {
+        display: block;
+        font-size: 0.8rem;
+        color: #00ff00;
+    }
+
+    .comment-form {
+        width: 100%;
+    }
+
+    .comment-form input {
+        width: 100%;
+        padding: 12px;
+        background: black;
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        font-size: 1rem;
+        box-shadow: 0 0 5px #00ff00;
+    }
+
+    .comment-form input::placeholder {
+        color: #00ff00;
+        opacity: 0.7;
+    }
+
+    .comment-form input:focus {
+        outline: none;
+        border-color: #00ff00;
+        box-shadow: 0 0 10px #00ff00;
+    }
+
+    .matrix-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
 </style>
 
-<div  class="room-container">
-    <div>
-    
+<div class="matrix-overlay">
+    <canvas id="matrixCanvas"></canvas>
+</div>
 
-        <p><center><h1><u>this is a room </u></h1></center></p>
-        <h1>{{room.name}}</h1>
-        
-        
-        <p>{{room.description}}</p>
-        
-        <div class="comment-wrapper">
-             <h3>Conversation</h3>
-             <hr>
-        
-             {% for message in room_messages %}
-             
-                <div>
-                    {% if request.user == message.user %}
-                    <a href="{% url 'delete-message' message.id %}">Delete</a>
-                    {% endif %}
-                    <small>@{{message.user}}   {{message.created|timesince}} ago</small>
-                    <p>{{message.body}}</p>
-                    <hr>
-                </div>
-        
-        
-        
-             {% endfor %}
-        
-        {% if request.user.is_authenticated %}
+<div class="room-container">
+    <div class="chat-section">
+        <h1><center><u>Welcome to {{ room.name }}</u></center></h1>
+        <p>{{ room.description }}</p>
+
+        <div class="message-box">
+            <h3>Conversation</h3>
+            <hr>
+
+            {% for message in room_messages %}
+            <div class="message">
+                {% if request.user == message.user %}
+                <a href="{% url 'delete-room' room.id  %}" style="text-decoration: none; font-size: large;" class="delete-btn" title="Delete activity">[x]</a>
+                {% endif %}
+                <small>@{{ message.user }} - {{ message.created|timesince }} ago</small>
+                <p>{{ message.body }}</p>
+            </div>
+            {% endfor %}
         </div>
+
+        {% if request.user.is_authenticated %}
         <div class="comment-form">
             <form method="POST">
                 {% csrf_token %}
@@ -50,22 +141,55 @@
             </form>
         </div>
         {% endif %}
-        
-            
-        
     </div>
-    
-    <div>
-        <h3>participants</h3> 
+
+    <div class="participant-section">
+        <h3>Participants</h3>
         <hr>
-     {% for user in participants %}
-     <div>
-         <p>@{{user.username}}</p>
-     </div>
-     {% endfor %}
-     </div>
-    
+        {% for user in participants %}
+        <div>
+            <p>@{{ user.username }}</p>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
+<script>
+    const canvas = document.getElementById("matrixCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const fontSize = 16;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function drawMatrix() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#00ff00";
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = characters[Math.floor(Math.random() * characters.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+
+    setInterval(drawMatrix, 50);
+
+    window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
 
 {% endblock content %}
