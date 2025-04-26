@@ -56,7 +56,7 @@ Follow these instructions to set up **Study Bud** locally:
 
 1. **Clone the Repository**
    ```bash
-   git clone https:
+   git clone https:https://github.com/honoursbhaduria/study-bud.git
    cd study-bud
    ```
 
@@ -102,10 +102,5 @@ Follow these instructions to set up **Study Bud** locally:
 
 ---
 
-# 🚀 Happy Chatting with Study Bud!
+ 🚀 Happy Chatting with Study Bud!
 
----
-
-### Note:  
-✅ **If you give me your GitHub username and email, I can personalize the README with real links!**  
-✅ **If you have any screenshots, I can show you how to add them properly too.**
